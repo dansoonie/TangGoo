@@ -9,75 +9,54 @@ import javax.microedition.khronos.opengles.GL10;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.util.Log;
 
 public class TGModel extends TGObject {	
 	private static final String TAG = "TGModel";
-
-	private String mShaderProgramName = "default_shader";
-	private TGDefaultShaderProgram mShaderProgram;
+	
 	private int[] mTextures;
 
 	private static final int FLOAT_SIZE_BYTES = 4;
-	private static final int TRIANGLE_VERTICES_DATA_STRIDE_BYTES = 5 * FLOAT_SIZE_BYTES;
-	private static final int TRIANGLE_VERTICES_DATA_POS_OFFSET = 0;
-	private static final int TRIANGLE_VERTICES_DATA_UV_OFFSET = 3;
-	private final float[] mTriangleVerticesData = {
-			// X, Y, Z, U, V
-			-1.0f, -1.0f, 0f, -0.5f, 0.0f,
-			1.0f, -1.0f, 0f, 1.5f, -0.0f,
-			0f,  1.0f, 0f, 0.5f,  1.61803399f };
-
-	private FloatBuffer mTriangleVertices;
-	private TGShaderManager mShaderManager;
+	
+	protected float[] mVertices;
+	protected float[] mUV;
+	
+	private FloatBuffer mBufferVertices;
+	private FloatBuffer mBufferUV;
 
 	public TGModel() {
-		this(true);
+		
 	}
-
-	public TGModel(boolean terminalNode) {
-		if (terminalNode) {
-			mShaderManager = TGShaderManager.getInstance();
-			mShaderProgram = (TGDefaultShaderProgram)mShaderManager.getShaderProgram(mShaderProgramName);
-
-			mTriangleVertices = ByteBuffer.allocateDirect(mTriangleVerticesData.length
-					* FLOAT_SIZE_BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer();
-			mTriangleVertices.put(mTriangleVerticesData).position(0);
-		}
+	
+	protected void init(float[] vertices, float[] uv) {
+		mVertices = new float[vertices.length];
+		System.arraycopy(vertices, 0, mVertices, 0, vertices.length);
+		mBufferVertices = toFloatBuffer(mVertices);
+		
+		mUV = new float[uv.length];
+		System.arraycopy(uv, 0, mUV, 0, uv.length);
+		mBufferUV = toFloatBuffer(mUV);
 	}
-
-	protected void bindShader(TGMatrixManager matrixManager) {
-		GLES20.glUseProgram(mShaderProgram.getProgram());
-
-		if (mTextures!= null) {
-			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextures[0]);
-		}
-
-		mTriangleVertices.position(TRIANGLE_VERTICES_DATA_POS_OFFSET);
-		GLES20.glVertexAttribPointer(mShaderProgram.getAttributePositionHandle(), 3, GLES20.GL_FLOAT, false,
-				TRIANGLE_VERTICES_DATA_STRIDE_BYTES, mTriangleVertices);
-		TGWorld.checkGlError("glVertexAttribPointer maPosition");
-		mTriangleVertices.position(TRIANGLE_VERTICES_DATA_UV_OFFSET);
-		GLES20.glEnableVertexAttribArray(mShaderProgram.getAttributePositionHandle());
-		TGWorld.checkGlError("glEnableVertexAttribArray maPositionHandle");
-		GLES20.glVertexAttribPointer(mShaderProgram.getAttributeTextureHandle(), 2, GLES20.GL_FLOAT, false,
-				TRIANGLE_VERTICES_DATA_STRIDE_BYTES, mTriangleVertices);
-		TGWorld.checkGlError("glVertexAttribPointer maTextureHandle");
-		GLES20.glEnableVertexAttribArray(mShaderProgram.getAttributeTextureHandle());
-		TGWorld.checkGlError("glEnableVertexAttribArray maTextureHandle");
-
-		GLES20.glUniformMatrix4fv(mShaderProgram.getUniformMVPMatrixHandle(), 1, false, matrixManager.peek(), 0);
+	
+	private FloatBuffer toFloatBuffer(float[] array) {
+		FloatBuffer floatBuffer = ByteBuffer.allocateDirect(array.length*FLOAT_SIZE_BYTES).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		floatBuffer.put(array).position();
+		return floatBuffer;
 	}
-
-	protected void draw(GL10 gl, TGMatrixManager matrixManager) {
-
-		matrixManager.push();
-		matrixManager.translate(mTransformation.mTranslate[0], mTransformation.mTranslate[1], mTransformation.mTranslate[2]);
-		//matrixManager.rotate(angle, x, y, z)
-		bindShader(matrixManager);
-		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3);
-		TGWorld.checkGlError("glDrawArrays");
-		matrixManager.pop();
+	
+	protected void draw(GL10 gl) {
+		Log.d(TAG, "draw");
+		gl.glPushMatrix();
+		gl.glTranslatef(mTransformation.mTranslate[0], mTransformation.mTranslate[1], mTransformation.mTranslate[2]);
+		gl.glScalef(mTransformation.mScale[0], mTransformation.mScale[1], mTransformation.mScale[2]);
+		
+		gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
+		gl.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		mBufferVertices.position(0);
+		gl.glVertexPointer(3, GL10.GL_FLOAT, 0, mBufferVertices);
+		gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, 4);
+		TGWorld.checkGlError("glDrawArrays", gl);
+		gl.glPopMatrix();
 	}
 
 	public void setTexture(Bitmap bitmap) {

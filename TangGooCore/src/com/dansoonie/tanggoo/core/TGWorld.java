@@ -8,36 +8,27 @@ import android.util.Log;
 
 public class TGWorld {
 	private static final String TAG = "TGWorld";
-
+	
 	private Context mContext;
+	private TGView mView;
 	private TGCamera mCamera;
-	private TGModelGroup mRootContainer;
-	Activator mActivator;
+	private TGObjectGroup mRootContainer;
 
-	public interface Activator {
-		public void activateWorld();
-	}
-
-	public TGWorld(Context context, Activator activator) {
+	public TGWorld(Context context) {
 		mContext = context;
 		mCamera = new TGCamera();
-		mRootContainer = new TGModelGroup();
-		mActivator = activator;
+		mRootContainer = new TGObjectGroup();
 	}
 
 	public TGCamera getCamera() {
 		return mCamera;
 	}
 
-	public void show(TGView view) {
-		view.show(this);
-	}	
-
 	public boolean put(TGModel model) {
 		return mRootContainer.add(model);
 	}
 
-	public boolean put(TGModelGroup modelGroup) {
+	public boolean put(TGObjectGroup modelGroup) {
 		return mRootContainer.add(modelGroup);
 	}
 
@@ -45,29 +36,19 @@ public class TGWorld {
 		return mRootContainer.remove(model);
 	}
 
-	public boolean remove(TGModelGroup modelGroup) {
+	public boolean remove(TGObjectGroup modelGroup) {
 		return mRootContainer.remove(modelGroup);
 	}
 
-	protected void drawWorld(GL10 gl, TGMatrixManager matrixManager) {
-		mRootContainer.draw(gl, matrixManager);
+	protected void drawWorld(GL10 gl) {
+		mRootContainer.draw(gl);
 	}
 
-	public static void checkGlError(String op) {
+	public static void checkGlError(String op, GL10 gl) {
 		int error;
-		while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+		while ((error = gl.glGetError()) != GL10.GL_NO_ERROR) {
 			Log.e(TAG, op + ": glError " + error);
 			throw new RuntimeException(op + ": glError " + error);
 		}
-	}
-
-	public void resume() {
-		Log.d(TAG, "TGWorld#onResume()");
-		TGShaderManager.getInstance(mContext);
-	}
-
-	public void pause() {
-		Log.d(TAG, "TGWorld#onPause()");
-		TGShaderManager.getInstance().clearContext();
 	}
 }

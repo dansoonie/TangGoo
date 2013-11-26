@@ -4,13 +4,16 @@ import java.util.LinkedList;
 
 import javax.microedition.khronos.opengles.GL10;
 
-public class TGModelGroup extends TGModel {
-	private LinkedList<TGModel> mObjectList;
+import android.util.Log;
+
+public class TGObjectGroup extends TGObject {
+	private static final String TAG = "TGModelGroup";
+	
+	private LinkedList<TGObject> mObjectList;
 	private TGModel[] mReferredObjectList;
 	
-	public TGModelGroup() {
-		super(false);
-		mObjectList = new LinkedList<TGModel>();
+	public TGObjectGroup() {
+		mObjectList = new LinkedList<TGObject>();
 		mReferredObjectList = new TGModel[5];
 	}
 	
@@ -19,28 +22,27 @@ public class TGModelGroup extends TGModel {
 		mReferredObjectList = mObjectList.toArray(mReferredObjectList);
 	}
 	
-	public boolean add(TGModel object) {
+	public boolean add(TGObject object) {
 		return mObjectList.add(object);
 	}
 	
-	public boolean remove(TGModel object) {
+	public boolean remove(TGObject object) {
 		return mObjectList.remove(object);
 	}
 	
 	@Override
-	protected void draw(GL10 gl, TGMatrixManager matrixManager) {
+	protected void draw(GL10 gl) {
+		Log.d(TAG, "draw");
 		if (mObjectList.size()>0) {
 			updateReferredObjectList();
-			matrixManager.push();
-			matrixManager.translate(mTransformation.mTranslate[0], mTransformation.mTranslate[1], mTransformation.mTranslate[2]);
-			//matrixManager.rotate(angle, x, y, z)
+			gl.glPushMatrix();
 			for (TGModel model : mReferredObjectList) {
 				if (model == null) {
 					break;
 				}
-				model.draw(gl, matrixManager);
+				model.draw(gl);
 			}
-			matrixManager.pop();
+			gl.glPopMatrix();
 		}
 	}
 	

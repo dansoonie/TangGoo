@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package com.dansoonie.tanggoo;
+package com.dansoonie.tanggoo.core;
 
 public final class R {
     public static final class attr {
@@ -15,16 +15,13 @@ public final class R {
         public static int robot=0x7f020001;
     }
     public static final class id {
-        public static int tgview=0x7f060000;
+        public static int tgview=0x7f050000;
     }
     public static final class layout {
         public static int main=0x7f030000;
     }
-    public static final class raw {
-        public static int robot=0x7f040000;
-    }
     public static final class string {
-        public static int app_name=0x7f050001;
-        public static int hello=0x7f050000;
+        public static int app_name=0x7f040001;
+        public static int hello=0x7f040000;
     }
 }

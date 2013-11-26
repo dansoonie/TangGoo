@@ -1,7 +1,9 @@
 package com.dansoonie.tanggoo.core;
 
+import javax.microedition.khronos.opengles.GL10;
 
-public class TGObject {
+
+abstract public class TGObject {
 	protected TGTransformation mTransformation;
 	
 	public TGObject() {
@@ -28,4 +30,5 @@ public class TGObject {
 		return mTransformation.mTranslate[axis];
 	}
 	
+	abstract void draw(GL10 gl);
 }

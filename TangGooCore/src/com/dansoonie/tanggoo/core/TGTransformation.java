@@ -1,14 +1,12 @@
 package com.dansoonie.tanggoo.core;
 
 public class TGTransformation {
-	float[] mTranslate;
+	float[] mTranslate = { 0.0f, 0.0f, 0.0f };
 	TGQuaternion mOrientation;
-	float[] mScale;
+	float[] mScale = {1.0f, 1.0f, 1.0f};
 	
 	public TGTransformation() {
-		mTranslate = new float[3];
 		mOrientation = new TGQuaternion();
-		mScale = new float[3];
 	}
 	
 	public void translate(float x, float y, float z) {

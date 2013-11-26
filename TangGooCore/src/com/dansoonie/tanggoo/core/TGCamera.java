@@ -1,11 +1,17 @@
 package com.dansoonie.tanggoo.core;
 
-public class TGCamera extends TGObject {
+import javax.microedition.khronos.opengles.GL10;
 
+import android.util.Log;
+
+public class TGCamera extends TGObject {
+	private static final String TAG="TGCamera";
+	
 	private float mNear;	
 	private float mFar;
 	private float mFocalPosition;
 	private float mFocalViewWidth;
+	private float mFocalDistance;
 	
 	private float[] mV_Direction;	// Direction x, y, z vector
 	private float[] mV_Up;
@@ -42,11 +48,17 @@ public class TGCamera extends TGObject {
 		return mFocalViewWidth;
 	}
 	
+	public float getFocalDisatance() {
+		return mFocalDistance;
+	}
+	
 	public void setCameraView(float near, float far, float focalPosition, float focalViewWidth) {
+		Log.d(TAG, "setCameraView");
 		mNear = near;
 		mFar = far;
 		mFocalPosition = focalPosition;
 		mFocalViewWidth = focalViewWidth;
+		mFocalDistance = mNear + (mFar-mNear)*mFocalPosition;
 		mDirtyProjection = true;
 	}
 	
@@ -59,6 +71,7 @@ public class TGCamera extends TGObject {
 	
 	@Override
 	public void translate(float tx, float ty, float tz) {
+		Log.d(TAG, "translate");
 		super.translate(tx, ty, tz);
 		mDirtyLookAt = true;
 	}
@@ -104,5 +117,10 @@ public class TGCamera extends TGObject {
 	
 	public boolean updateLookAt() {
 		return mDirtyLookAt;		
+	}
+	
+	void draw(GL10 gl) {
+		// Do nothing
+		Log.e(TAG, "TGCamera should not call draw!!!");
 	}
 }
